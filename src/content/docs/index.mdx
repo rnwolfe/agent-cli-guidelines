@@ -1,0 +1,62 @@
+---
+title: Agent CLI Guidelines
+description: A living, versioned standard for command-line tools designed to be driven by LLM agents.
+template: splash
+owner: rnwolfe
+lastReviewed: 2026-06-23
+hero:
+  tagline: How to build command-line tools that an LLM agent can drive safely, cheaply, and correctly — a living, versioned standard.
+  actions:
+    - text: Read the invariants
+      link: /invariants/
+      icon: right-arrow
+    - text: Conformance checklist
+      link: /conformance/
+      icon: document
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/rnwolfe/agent-cli-guidelines
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Command-line tools are becoming a primary interface for AI agents — not just humans. But most
+CLIs are built for a person at a terminal: they prompt, they print prose, they happily mutate
+state, and they tell you nothing a machine can parse. An agent driving them flies blind.
+
+These guidelines describe how to build a CLI that an agent can **discover, drive, and trust** —
+while staying excellent for the humans who also use it. They distill the patterns that work, name
+the antipatterns that don't, and pin each rule to the assumption about LLM capability behind it,
+so the standard can evolve as the models do.
+
+**Status:** v0.1 (draft). A living document — see [Evolution & governance](/evolution/).
+
+<CardGrid>
+	<Card title="Philosophy" icon="open-book">
+		Why agent-native CLIs, and where CLIs end and MCP begins. [Read →](/philosophy/)
+	</Card>
+	<Card title="Invariants" icon="approve-check">
+		The non-negotiable core — the MUSTs every agent-CLI satisfies. [Read →](/invariants/)
+	</Card>
+	<Card title="Patterns" icon="setting">
+		[Foundations](/foundations/), [Safety](/safety/), [Self-description](/self-description/),
+		[Token economy](/economy/), [Auth](/auth/).
+	</Card>
+	<Card title="Antipatterns" icon="error">
+		Named failure modes from the real-world crop of agent CLIs. [Read →](/antipatterns/)
+	</Card>
+	<Card title="Conformance" icon="list-format">
+		A checklist and two levels — Core and Full — so a tool can self-certify. [Read →](/conformance/)
+	</Card>
+	<Card title="Evolution" icon="rocket">
+		Versioning, governance, and the capability-assumptions that will change. [Read →](/evolution/)
+	</Card>
+</CardGrid>
+
+---
+
+These guidelines are prose with teeth: discursive where teaching helps, normative where it
+matters. The keywords **MUST**, **SHOULD**, and **MAY** are used as defined in
+[Invariants](/invariants/). Prose and rationale are licensed CC BY 4.0; reuse and adapt freely.

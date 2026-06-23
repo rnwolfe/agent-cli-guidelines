@@ -1,0 +1,20 @@
+/* Agent CLI Guidelines — design tokens. Override Starlight CSS vars; do not fork the theme. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  /* Indigo accent ramp — a "standard / authority" feel, distinct from tool docs */
+  --sl-color-accent-low: #1c1b33;
+  --sl-color-accent: #5b5bd6;
+  --sl-color-accent-high: #c4c2ff;
+
+  --sl-font: 'Inter Variable', system-ui, sans-serif;
+  --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --sl-content-width: 50rem;
+  --sl-text-5xl: 3.25rem;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent: #4f4fc7;
+}
