@@ -62,8 +62,18 @@ The standard is versioned (currently **v0.1**) — see [Evolution](/evolution/).
 conformance, name the version and level you targeted (e.g. "Agent CLI Guidelines v0.1, Core") so
 the claim stays meaningful as the standard evolves.
 
-## A worked example
+## Worked examples
 
-[`nxstate`](https://github.com/rnwolfe/nxstate) — a read-only Cisco Nexus state CLI — is built to
-**Full** conformance and wears the badge in its README. It's a useful reference for what the
-checklist looks like in real code.
+Two read-only CLIs built to **Full** conformance, in different domains — useful references for what
+the checklist looks like in real code:
+
+- [`nxstate`](https://github.com/rnwolfe/nxstate) — a read-only Cisco Nexus state CLI. A clean read
+  surface over a network device.
+- [`gfly`](https://github.com/rnwolfe/gfly) ([docs](https://docs.gfly.sh)) — a read-only Google
+  Flights CLI for agents. A useful reference for conforming over an **untrusted, reverse-engineered
+  upstream**: parse breakage surfaces as a `SCHEMA_DRIFT` exit code, rate-limits/CAPTCHA as a
+  `BLOCKED` code with `retryAfterSeconds`, a swappable backend sits behind one stable
+  `schemaVersion` envelope, and a persistent cross-process throttle keeps the read path polite
+  without hanging an agent loop.
+
+Both wear the badge in their READMEs.
