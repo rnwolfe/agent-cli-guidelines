@@ -47,7 +47,7 @@ export default defineConfig({
 				{
 					label: 'Start here',
 					items: [
-						{ label: 'Introduction', slug: 'index' },
+						{ label: 'Home', link: '/' },
 						{ label: 'Philosophy', slug: 'philosophy' },
 					],
 				},

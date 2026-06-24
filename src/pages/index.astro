@@ -1,0 +1,491 @@
+---
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+
+const base = import.meta.env.BASE_URL; // e.g. "/agent-cli-guidelines" (may lack a trailing slash)
+const href = (p = '') => `/${base}/${p}`.replace(/\/{2,}/g, '/');
+const repo = 'https://github.com/rnwolfe/agent-cli-guidelines';
+
+const comparisons = [
+  {
+    tag: 'I2 · Read-only by default',
+    title: 'It refuses to wreck things.',
+    blurb:
+      "A conformant tool can't change state unless you opt in. A blocked write fails structured — before it ever connects.",
+    bad: {
+      cmd: 'othercli delete cluster prod',
+      lines: [
+        { t: 'Deleting cluster "prod"…', c: 'bad' },
+        { t: '✓ 14 nodes terminated. done.', c: 'bad' },
+      ],
+    },
+    good: {
+      cmd: 'agentctl delete cluster prod',
+      lines: [
+        { t: '{', c: '' },
+        { t: '  "error": "delete is a mutating operation",', c: '' },
+        { t: '  "code": "WRITE_REFUSED",', c: 'key' },
+        { t: '  "remediation": "re-run with --allow-mutations"', c: '' },
+        { t: '}', c: '' },
+        { t: 'exit 11  ·  nothing touched', c: 'dim' },
+      ],
+    },
+  },
+  {
+    tag: 'I3 + I8 · Structured & bounded',
+    title: 'It returns data, not a wall of text.',
+    blurb:
+      'Stable JSON the agent can parse — projected to the fields it asked for, bounded by default, with the rest one cursor away.',
+    bad: {
+      cmd: 'othercli list users',
+      lines: [
+        { t: 'Users (showing all 4,213):', c: 'bad' },
+        { t: '• Ada Lovelace — joined 2019, last seen…', c: 'bad' },
+        { t: '• Alan Turing — joined 2018, last seen…', c: 'bad' },
+        { t: '• … 4,210 more rows flooding context …', c: 'bad' },
+      ],
+    },
+    good: {
+      cmd: 'agentctl users list --json --select id,name --limit 2',
+      lines: [
+        { t: '[', c: '' },
+        { t: '  { "id": "u_01", "name": "Ada Lovelace" },', c: 'key' },
+        { t: '  { "id": "u_02", "name": "Alan Turing" }', c: 'key' },
+        { t: ']', c: '' },
+        { t: 'note: 2 of 4213 — pass --limit for more', c: 'dim' },
+      ],
+    },
+  },
+  {
+    tag: 'I7 · Actionable errors',
+    title: 'Its errors tell the agent what to do next.',
+    blurb:
+      'A machine-readable code and a remediation, not an opaque traceback. The agent self-corrects without a human.',
+    bad: {
+      cmd: 'othercli get item 42',
+      lines: [
+        { t: 'Traceback (most recent call last):', c: 'bad' },
+        { t: '  File "cli.py", line 211, in main', c: 'bad' },
+        { t: 'KeyError: 42', c: 'bad' },
+      ],
+    },
+    good: {
+      cmd: 'agentctl get item 42 --json',
+      lines: [
+        { t: '{', c: '' },
+        { t: '  "error": "item 42 not found",', c: '' },
+        { t: '  "code": "NOT_FOUND",', c: 'key' },
+        { t: '  "remediation": "list items to find a valid id"', c: '' },
+        { t: '}', c: '' },
+      ],
+    },
+  },
+  {
+    tag: 'I6 · Self-description',
+    title: 'It tells the agent how to use it.',
+    blurb:
+      'A machine-readable surface — the command tree, exit codes, and live safety state — so an agent learns the tool at runtime.',
+    bad: {
+      cmd: 'othercli schema',
+      lines: [
+        { t: "error: unknown command 'schema'", c: 'bad' },
+        { t: 'Run othercli --help for usage.', c: 'bad' },
+      ],
+    },
+    good: {
+      cmd: 'agentctl schema',
+      lines: [
+        { t: '{', c: '' },
+        { t: '  "tool": "agentctl", "read_only": true,', c: '' },
+        { t: '  "commands": { "…": "the full tree" },', c: '' },
+        { t: '  "exit_codes": { "ok": 0, "write_refused": 11 },', c: 'key' },
+        { t: '  "safety": { "allow_mutations": false }', c: 'key' },
+        { t: '}', c: '' },
+      ],
+    },
+  },
+];
+
+const benefits = [
+  ['Read-only by default', 'Mutations are gated in the binary, not a wrapper. The safe path is the default.'],
+  ['Self-describing', 'schema + an embedded agent guide. The tool teaches itself at runtime.'],
+  ['Token-bounded', 'Bounded, projectable, paginated output. Your agent’s context stays its own.'],
+  ['Injection-fenced', 'Untrusted device/API text is fenced so the agent won’t follow what’s hidden in it.'],
+  ['Agent-completable auth', 'A real headless path — never a browser-only dead end. Secrets never on argv.'],
+  ['Append-only contract', 'Commands, flags, and fields don’t shift under the scripts that depend on them.'],
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent CLI Guidelines — build CLIs your agent can actually drive</title>
+    <meta
+      name="description"
+      content="A living, versioned standard for command-line tools designed to be driven by LLM agents: read-only by default, self-describing, token-bounded, injection-fenced."
+    />
+    <link rel="icon" href={href('favicon.svg')} />
+    <meta property="og:title" content="Agent CLI Guidelines" />
+    <meta property="og:description" content="The standard for command-line tools that LLM agents can drive safely, cheaply, and correctly." />
+    <meta property="og:type" content="website" />
+    <!-- Mark JS available before paint so the reveal's hidden state only applies with JS
+         (no-JS / failed-JS shows everything — never a blank page). -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="nav">
+      <a class="brand" href={href('')}>
+        <span class="dot"></span> agent&#8203;cli&#8203;<span class="brand-dim">guidelines</span>
+      </a>
+      <nav class="nav-links">
+        <a href={href('invariants/')}>Invariants</a>
+        <a href={href('conformance/')}>Conformance</a>
+        <a href={href('philosophy/')}>Docs</a>
+        <a class="ghost" href={repo} target="_blank" rel="noopener">GitHub ↗</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-inner">
+          <p class="eyebrow reveal">THE&nbsp;STANDARD&nbsp;·&nbsp;v0.1&nbsp;·&nbsp;living&nbsp;document</p>
+          <h1 class="reveal">
+            Build CLIs your<br /><span class="grad">agent can actually drive.</span>
+          </h1>
+          <p class="lede reveal">
+            Most command-line tools are built for a human at a terminal — they prompt, print prose, and
+            happily mutate state. An agent driving them flies blind. The <strong>Agent CLI Guidelines</strong>
+            are an opinionated, versioned standard for tools an agent can <em>discover, drive, and trust</em>.
+          </p>
+          <div class="cta reveal">
+            <a class="btn btn-primary" href={href('invariants/')}>Read the invariants →</a>
+            <a class="btn btn-ghost" href={href('conformance/')}>Conformance checklist</a>
+          </div>
+        </div>
+
+        <div class="hero-term reveal" aria-hidden="true">
+          <div class="term-bar"><span></span><span></span><span></span><em>agent · shell</em></div>
+          <pre class="term-body"><code><span class="ln"><span class="p">$</span> agentctl show "configure terminal"</span>
+<span class="ln out">error: refused non-read command: 'configure terminal'</span>
+<span class="ln out key">  code: WRITE_REFUSED</span>
+<span class="ln out">  fix:  read-only by design — no <span class="p">conf t</span>, ever</span>
+<span class="ln dim">exit 11  ·  the switch was never contacted<span class="cur"></span></span></code></pre>
+        </div>
+      </section>
+
+      <!-- PROBLEM -->
+      <section class="band reveal">
+        <p class="kicker">The gap</p>
+        <p class="big">
+          The 2025–26 wave of agent CLIs got <span class="hl">output</span> right and
+          <span class="hl-bad">safety, self-description, and token discipline</span> wrong.
+          “Read-only by default” — the property everyone talks about — is the one most of them
+          don’t actually ship.
+        </p>
+      </section>
+
+      <!-- COMPARISONS -->
+      <section class="compare">
+        <p class="kicker center reveal">Same job · two outcomes</p>
+        <h2 class="section-title center reveal">What following the spec gets you</h2>
+
+        {comparisons.map((c) => (
+          <div class="cmp reveal">
+            <div class="cmp-head">
+              <span class="cmp-tag">{c.tag}</span>
+              <h3>{c.title}</h3>
+              <p>{c.blurb}</p>
+            </div>
+            <div class="cmp-grid">
+              <div class="panel panel-bad">
+                <div class="panel-label">The other way</div>
+                <pre class="term-body"><code><span class="ln" style="--i:0"><span class="p">$</span> {c.bad.cmd}<span class="cur"></span></span>{c.bad.lines.map((l, i) => (
+                  <span class={`ln out ${l.c}`} style={`--i:${i + 1}`}>{l.t}</span>
+                ))}</code></pre>
+              </div>
+              <div class="panel panel-good">
+                <div class="panel-label">The guidelines way</div>
+                <pre class="term-body"><code><span class="ln" style="--i:0"><span class="p">$</span> {c.good.cmd}<span class="cur"></span></span>{c.good.lines.map((l, i) => (
+                  <span class={`ln out ${l.c}`} style={`--i:${i + 1}`}>{l.t}</span>
+                ))}</code></pre>
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <!-- BENEFITS -->
+      <section class="benefits">
+        <p class="kicker center reveal">Ten invariants, distilled</p>
+        <h2 class="section-title center reveal">A floor an agent can stand on</h2>
+        <div class="bgrid">
+          {benefits.map(([t, d], i) => (
+            <div class="bcard reveal" style={`--i:${i}`}>
+              <span class="bnum">{String(i + 1).padStart(2, '0')}</span>
+              <h4>{t}</h4>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- LIVING / CONFORMANCE -->
+      <section class="living reveal">
+        <div class="living-inner">
+          <p class="kicker">Built to evolve</p>
+          <h2 class="section-title">A living standard, not a frozen spec.</h2>
+          <p class="lede">
+            Every rule is pinned to the assumption about LLM capability behind it — so as context
+            windows grow and models change, you know exactly which rules to revisit. Tools claim a
+            <strong> version</strong> at a <strong>level</strong>: <span class="pill">Core</span>
+            (the invariants) or <span class="pill pill-full">Full</span> (the patterns too).
+          </p>
+          <div class="cta">
+            <a class="btn btn-primary" href={href('evolution/')}>How it evolves →</a>
+            <a class="btn btn-ghost" href={href('antipatterns/')}>See the antipatterns</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href={href('')}><span class="dot"></span> agentcli&#8203;<span class="brand-dim">guidelines</span></a>
+          <p class="foot-note">A standard for command-line tools that LLM agents can drive. Prose CC BY 4.0.</p>
+        </div>
+        <div class="foot-cols">
+          <div>
+            <p class="foot-h">Read</p>
+            <a href={href('philosophy/')}>Philosophy</a>
+            <a href={href('invariants/')}>Invariants</a>
+            <a href={href('safety/')}>Safety</a>
+            <a href={href('economy/')}>Token economy</a>
+          </div>
+          <div>
+            <p class="foot-h">Adopt</p>
+            <a href={href('conformance/')}>Conformance</a>
+            <a href={href('antipatterns/')}>Antipatterns</a>
+            <a href={href('evolution/')}>Evolution</a>
+            <a href={repo} target="_blank" rel="noopener">GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+      <p class="foot-legal">v0.1 · maintained in the open · <a href={repo} target="_blank" rel="noopener">rnwolfe/agent-cli-guidelines</a></p>
+    </footer>
+
+    <style is:global>
+      :root {
+        --bg: #07070b;
+        --bg-2: #0a0a12;
+        --panel: rgba(255, 255, 255, 0.025);
+        --border: rgba(255, 255, 255, 0.09);
+        --border-soft: rgba(255, 255, 255, 0.055);
+        --text: #ebebf2;
+        --muted: #a3a3ba;
+        --faint: #6e6e88;
+        --accent: #8b8bf6;
+        --accent-2: #b8a6ff;
+        --good: #59e2a0;
+        --bad: #fb7894;
+        --display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+        --body: 'Inter Variable', system-ui, sans-serif;
+        --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--body);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      /* moody base gradients */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(1100px 700px at 50% -8%, rgba(91, 91, 214, 0.28), transparent 60%),
+          radial-gradient(900px 600px at 12% 18%, rgba(120, 80, 220, 0.14), transparent 55%),
+          radial-gradient(900px 600px at 92% 30%, rgba(40, 90, 200, 0.10), transparent 55%),
+          linear-gradient(180deg, var(--bg), var(--bg-2) 40%, var(--bg));
+      }
+      /* fine film grain */
+      .grain {
+        position: fixed;
+        inset: -50%;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.05;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      a { color: inherit; text-decoration: none; }
+      main { position: relative; z-index: 2; }
+
+      /* nav */
+      .nav {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem clamp(1.1rem, 4vw, 3rem);
+        backdrop-filter: blur(10px);
+        background: linear-gradient(180deg, rgba(7,7,11,0.7), rgba(7,7,11,0));
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .brand { font-family: var(--mono); font-weight: 600; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.95rem; }
+      .brand-dim { color: var(--faint); }
+      .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px 2px rgba(139,139,246,0.7); }
+      .nav-links { display: flex; gap: clamp(0.8rem, 2vw, 1.8rem); align-items: center; font-size: 0.9rem; }
+      .nav-links a { color: var(--muted); transition: color 0.2s; }
+      .nav-links a:hover { color: var(--text); }
+      .nav-links .ghost { color: var(--text); border: 1px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 999px; }
+      .nav-links .ghost:hover { border-color: var(--accent); }
+      @media (max-width: 620px) { .nav-links a:not(.ghost) { display: none; } }
+
+      /* hero */
+      .hero { position: relative; max-width: 1180px; margin: 0 auto; padding: clamp(3.5rem, 9vw, 7rem) clamp(1.1rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem); display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+      @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
+      .eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.18em; color: var(--accent-2); margin: 0 0 1.3rem; }
+      h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.6rem, 6.4vw, 5rem); line-height: 0.98; letter-spacing: -0.03em; margin: 0 0 1.4rem; }
+      .grad { background: linear-gradient(100deg, #c9c7ff 0%, var(--accent) 45%, #6f9bff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .lede { font-size: clamp(1.02rem, 1.6vw, 1.2rem); color: var(--muted); max-width: 40ch; margin: 0 0 2rem; }
+      .lede strong { color: var(--text); font-weight: 600; }
+      .cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+      .btn { font-family: var(--mono); font-size: 0.9rem; padding: 0.75rem 1.25rem; border-radius: 10px; border: 1px solid transparent; transition: transform 0.15s, box-shadow 0.25s, border-color 0.2s, background 0.2s; }
+      .btn:hover { transform: translateY(-2px); }
+      .btn-primary { background: linear-gradient(180deg, #6e6ef0, #5b5bd6); color: #fff; box-shadow: 0 8px 30px -8px rgba(91,91,214,0.8), inset 0 1px 0 rgba(255,255,255,0.25); }
+      .btn-primary:hover { box-shadow: 0 12px 38px -8px rgba(91,91,214,1); }
+      .btn-ghost { border-color: var(--border); color: var(--text); }
+      .btn-ghost:hover { border-color: var(--accent); }
+
+      /* terminals */
+      .hero-term, .panel { border: 1px solid var(--border); border-radius: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012)); box-shadow: 0 30px 70px -30px rgba(0,0,0,0.8); overflow: hidden; }
+      .term-bar { display: flex; align-items: center; gap: 7px; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border-soft); }
+      .term-bar span { width: 11px; height: 11px; border-radius: 50%; background: #2b2b38; }
+      .term-bar span:nth-child(1) { background: #46303a; }
+      .term-bar em { margin-left: auto; font-family: var(--mono); font-size: 0.72rem; color: var(--faint); font-style: normal; }
+      .term-body { margin: 0; padding: 1.05rem 1.15rem; overflow-x: auto; white-space: normal; }
+      .term-body code { font-family: var(--mono); font-size: clamp(0.76rem, 1.05vw, 0.9rem); line-height: 1.75; display: block; }
+      .ln { display: block; white-space: pre; }
+      .ln .p { color: var(--accent); }
+      .out { color: #cfcfe0; }
+      .panel-bad .out, .out.bad { color: var(--bad); }
+      .out.key { color: var(--good); }
+      .out.dim, .ln.dim { color: var(--faint); }
+      .cur { display: inline-block; width: 8px; height: 1.05em; vertical-align: text-bottom; margin-left: 2px; background: var(--accent); animation: blink 1.15s steps(1) infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      /* bands / sections */
+      .band { max-width: 980px; margin: clamp(3rem,8vw,6rem) auto; padding: 0 clamp(1.1rem,4vw,3rem); text-align: center; }
+      .kicker { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 1rem; }
+      .kicker.center { text-align: center; }
+      .big { font-family: var(--display); font-weight: 600; font-size: clamp(1.5rem, 3.6vw, 2.5rem); line-height: 1.18; letter-spacing: -0.02em; margin: 0; color: var(--text); }
+      .hl { color: var(--good); }
+      .hl-bad { color: var(--bad); }
+      .section-title { font-family: var(--display); font-weight: 700; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -0.025em; line-height: 1.05; margin: 0.3rem 0 2.6rem; }
+      .center { text-align: center; }
+
+      .compare { max-width: 1100px; margin: clamp(3rem,8vw,6rem) auto; padding: 0 clamp(1.1rem,4vw,3rem); }
+      .cmp { margin: 0 auto clamp(2.4rem, 6vw, 4rem); max-width: 1000px; }
+      .cmp-head { text-align: center; max-width: 60ch; margin: 0 auto 1.5rem; }
+      .cmp-tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 0.28rem 0.7rem; }
+      .cmp-head h3 { font-family: var(--display); font-weight: 600; font-size: clamp(1.3rem, 2.6vw, 1.9rem); letter-spacing: -0.02em; margin: 0.9rem 0 0.5rem; }
+      .cmp-head p { color: var(--muted); margin: 0; }
+      .cmp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+      @media (max-width: 760px) { .cmp-grid { grid-template-columns: 1fr; } }
+      .panel-label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.65rem 1.15rem; border-bottom: 1px solid var(--border-soft); color: var(--faint); }
+      .panel-bad { border-color: rgba(251,120,148,0.22); }
+      .panel-bad .panel-label { color: var(--bad); background: linear-gradient(180deg, rgba(251,120,148,0.08), transparent); }
+      .panel-good { border-color: rgba(89,226,160,0.22); }
+      .panel-good .panel-label { color: var(--good); background: linear-gradient(180deg, rgba(89,226,160,0.08), transparent); }
+
+      /* benefits */
+      .benefits { max-width: 1100px; margin: clamp(3rem,8vw,6rem) auto; padding: 0 clamp(1.1rem,4vw,3rem); }
+      .bgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      @media (max-width: 820px) { .bgrid { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 520px) { .bgrid { grid-template-columns: 1fr; } }
+      .bcard { position: relative; border: 1px solid var(--border-soft); border-radius: 14px; padding: 1.5rem 1.4rem; background: var(--panel); transition: transform 0.2s, border-color 0.2s, background 0.2s; overflow: hidden; }
+      .bcard:hover { transform: translateY(-3px); border-color: var(--border); background: rgba(255,255,255,0.04); }
+      .bcard::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,139,246,0.5), transparent); opacity: 0; transition: opacity 0.3s; }
+      .bcard:hover::after { opacity: 1; }
+      .bnum { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); }
+      .bcard h4 { font-family: var(--display); font-weight: 600; font-size: 1.18rem; letter-spacing: -0.01em; margin: 0.7rem 0 0.5rem; }
+      .bcard p { color: var(--muted); font-size: 0.94rem; margin: 0; }
+
+      /* living */
+      .living { max-width: 1100px; margin: clamp(3rem,8vw,6rem) auto; padding: 0 clamp(1.1rem,4vw,3rem); }
+      .living-inner { border: 1px solid var(--border); border-radius: 20px; padding: clamp(2rem, 5vw, 3.5rem); text-align: center; background:
+        radial-gradient(700px 300px at 50% 0%, rgba(91,91,214,0.18), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.008)); }
+      .living .lede { margin: 0 auto 2rem; max-width: 62ch; }
+      .living .cta { justify-content: center; }
+      .pill { font-family: var(--mono); font-size: 0.82rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.1rem 0.6rem; color: var(--accent); }
+      .pill-full { color: var(--good); border-color: rgba(89,226,160,0.3); }
+
+      /* footer */
+      .foot { border-top: 1px solid var(--border-soft); margin-top: clamp(3rem,8vw,6rem); padding: clamp(2.5rem,6vw,4rem) clamp(1.1rem,4vw,3rem) 2.5rem; position: relative; z-index: 2; }
+      .foot-grid { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+      .foot-note { color: var(--faint); max-width: 34ch; font-size: 0.9rem; margin: 0.9rem 0 0; }
+      .foot-cols { display: flex; gap: clamp(2rem, 6vw, 5rem); }
+      .foot-h { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin: 0 0 0.7rem; }
+      .foot-cols a { display: block; color: var(--muted); font-size: 0.92rem; padding: 0.18rem 0; transition: color 0.2s; }
+      .foot-cols a:hover { color: var(--text); }
+      .foot-legal { max-width: 1100px; margin: 2.5rem auto 0; font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
+      .foot-legal a { color: var(--accent); }
+
+      /* scroll reveal — only hide when JS is present (progressive enhancement) */
+      .js .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(0.2,0.7,0.2,1), transform 0.7s cubic-bezier(0.2,0.7,0.2,1); }
+      .js .reveal.in { opacity: 1; transform: none; }
+      /* staggered terminal lines once a comparison is in view */
+      .js .cmp .ln { opacity: 0; transform: translateY(6px); transition: opacity 0.45s ease, transform 0.45s ease; transition-delay: calc(var(--i, 0) * 70ms); }
+      .js .cmp.in .ln { opacity: 1; transform: none; }
+      .bcard { transition-delay: calc(var(--i, 0) * 45ms); }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .reveal, .cmp .ln { opacity: 1 !important; transform: none !important; transition: none !important; }
+        .cur { animation: none; }
+      }
+    </style>
+
+    <script is:inline>
+      (function () {
+        var els = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach(function (el) { el.classList.add('in'); });
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+            });
+          },
+          { threshold: 0.16, rootMargin: '0px 0px -8% 0px' }
+        );
+        els.forEach(function (el) { io.observe(el); });
+        // Safety net: anything still hidden shortly after load gets revealed.
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            document.querySelectorAll('.reveal:not(.in)').forEach(function (el) {
+              var r = el.getBoundingClientRect();
+              if (r.top < window.innerHeight) el.classList.add('in');
+            });
+          }, 1200);
+        });
+      })();
+    </script>
+  </body>
+</html>
