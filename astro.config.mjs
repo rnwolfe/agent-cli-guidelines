@@ -57,6 +57,7 @@ export default defineConfig({
 					label: 'Adopt & evolve',
 					items: [
 						{ label: 'Conformance', slug: 'conformance' },
+						{ label: 'Get the badge', slug: 'badge' },
 						{ label: 'Evolution & governance', slug: 'evolution' },
 						{ label: 'Prior art & credits', slug: 'prior-art' },
 					],

@@ -64,6 +64,7 @@ const pages = [
   { slug: 'auth', kicker: STD, title: 'Auth & secrets' },
   { slug: 'antipatterns', kicker: STD, title: 'Antipatterns' },
   { slug: 'conformance', kicker: STD, title: 'Conformance' },
+  { slug: 'badge', kicker: STD, title: 'Get the badge' },
   { slug: 'evolution', kicker: STD, title: 'Evolution & governance' },
   { slug: 'prior-art', kicker: STD, title: 'Prior art & credits' },
 ];

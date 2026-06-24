@@ -50,6 +50,11 @@ The checklist is designed to be run as an audit. A companion reviewer (the `cli-
 the agent-cli-factory toolchain) grades a tool's command surface against these items and reports
 findings by severity. Treat a failed **Core** item as a release blocker.
 
+## Show it
+
+Meeting the bar? Declare it: grab a **[conformance badge](/badge/)** and a one-line statement for
+your README that link back here.
+
 ## Self-certifying honestly
 
 Conformance is a claim about behavior, not a logo. If you deviate from a SHOULD, document why. If
