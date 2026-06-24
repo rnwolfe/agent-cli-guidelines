@@ -1,20 +1,114 @@
-/* Agent CLI Guidelines — design tokens. Override Starlight CSS vars; do not fork the theme. */
+/* Agent CLI Guidelines — terminal-noir theme for the docs, matching the landing.
+   Tokens first; a global gradient + grain atmosphere; Bricolage display headings. */
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/bricolage-grotesque';
 
 :root {
-  /* Indigo accent ramp — a "standard / authority" feel, distinct from tool docs */
+  /* Indigo accent ramp */
   --sl-color-accent-low: #1c1b33;
   --sl-color-accent: #5b5bd6;
   --sl-color-accent-high: #c4c2ff;
 
   --sl-font: 'Inter Variable', system-ui, sans-serif;
   --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --display: 'Bricolage Grotesque Variable', var(--sl-font);
 
   --sl-content-width: 50rem;
   --sl-text-5xl: 3.25rem;
+
+  /* shared accents used below */
+  --acg-grad: linear-gradient(100deg, #c9c7ff 0%, #8b8bf6 45%, #6f9bff 100%);
 }
 
+/* ---- Dark (default / branded) ---- */
+:root,
+:root[data-theme='dark'] {
+  --sl-color-bg: #08080c;
+  --sl-color-bg-nav: rgba(8, 8, 12, 0.62);
+  --sl-color-bg-sidebar: rgba(10, 10, 16, 0.45);
+  --sl-color-bg-inline-code: rgba(255, 255, 255, 0.06);
+  --sl-color-hairline: rgba(255, 255, 255, 0.08);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.06);
+  --sl-color-hairline-shade: rgba(255, 255, 255, 0.05);
+  --sl-color-gray-7: #0b0b12;
+  --sl-color-gray-6: #101019;
+  --sl-color-text-accent: var(--sl-color-accent-high);
+}
+
+/* Moody fixed gradient behind everything (dark only). */
+:root[data-theme='dark'] body::before,
+:root:not([data-theme='light']) body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at 50% -10%, rgba(91, 91, 214, 0.30), transparent 60%),
+    radial-gradient(820px 560px at 8% 12%, rgba(120, 80, 220, 0.14), transparent 55%),
+    radial-gradient(820px 560px at 96% 26%, rgba(40, 90, 200, 0.12), transparent 55%);
+}
+
+/* Fine film grain (dark only). */
+:root[data-theme='dark'] body::after,
+:root:not([data-theme='light']) body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Let the gradient glow through the translucent header/sidebar. */
+:root[data-theme='dark'] .header,
+:root:not([data-theme='light']) .header {
+  backdrop-filter: blur(10px);
+}
+
+/* ---- Light (clean, gradient-free) ---- */
 :root[data-theme='light'] {
   --sl-color-accent: #4f4fc7;
+  --sl-color-accent-high: #2c2c66;
+  --sl-color-bg-inline-code: rgba(91, 91, 214, 0.08);
+}
+:root[data-theme='light'] body::before,
+:root[data-theme='light'] body::after {
+  display: none;
+}
+
+/* ---- Display headings (both modes) ---- */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+h1#_top,
+.hero h1,
+.content-panel h1 {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Bolder: gradient the page title. */
+:root[data-theme='dark'] .content-panel h1,
+:root:not([data-theme='light']) .content-panel h1 {
+  background: var(--acg-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Site title in the header uses the mono brand voice. */
+.site-title {
+  font-family: var(--sl-font-mono);
+  letter-spacing: -0.01em;
+}
+
+/* Accent the active sidebar link a touch more. */
+:root[data-theme='dark'] .sidebar a[aria-current='page'],
+:root:not([data-theme='light']) .sidebar a[aria-current='page'] {
+  color: var(--sl-color-accent-high);
 }

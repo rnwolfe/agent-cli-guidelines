@@ -33,6 +33,14 @@ export default defineConfig({
 			title: 'Agent CLI Guidelines',
 			description:
 				'A living, versioned standard for command-line tools designed to be driven by LLM agents — invariants, patterns, antipatterns, and a conformance checklist.',
+			// Default first-time visitors to the branded dark theme (the toggle still works).
+			head: [
+				{
+					tag: 'script',
+					content:
+						"try{if(!localStorage.getItem('starlight-theme')){document.documentElement.dataset.theme='dark'}}catch(e){}",
+				},
+			],
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/rnwolfe/agent-cli-guidelines' },
 			],
