@@ -1,6 +1,6 @@
 # Changelog
 
-Versioning follows the scheme in [Evolution & governance](https://rnwolfe.github.io/agent-cli-guidelines/evolution/):
+Versioning follows the scheme in [Evolution & governance](https://aclig.dev/evolution/):
 MAJOR = breaking normative change, MINOR = new non-breaking guidance, PATCH = clarifications.
 
 ## v0.1.0 — 2026-06-23

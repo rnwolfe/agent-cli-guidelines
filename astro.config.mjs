@@ -2,31 +2,12 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import { visit } from 'unist-util-visit';
-
-const BASE = '/agent-cli-guidelines';
-
-// Starlight base-prefixes its own nav + assets, but NOT hand-written absolute links in Markdown
-// content. Prefix internal `/...` links with the base so cross-links work on the project Pages site
-// while source links stay clean/portable.
-function rehypeBaseLinks() {
-	return (/** @type {any} */ tree) => {
-		visit(tree, 'element', (/** @type {any} */ node) => {
-			if (node.tagName !== 'a') return;
-			const href = node.properties?.href;
-			if (typeof href !== 'string') return;
-			if (href.startsWith('/') && !href.startsWith('//') && !href.startsWith(BASE + '/') && href !== BASE) {
-				node.properties.href = BASE + href;
-			}
-		});
-	};
-}
 
 // https://astro.build/config
+// Served at the root of https://aclig.dev — no base path, so internal `/...` links work
+// natively (no rehype base-prefixing needed).
 export default defineConfig({
-	site: 'https://rnwolfe.github.io',
-	base: BASE,
-	markdown: { rehypePlugins: [rehypeBaseLinks] },
+	site: 'https://aclig.dev',
 
 	integrations: [
 		starlight({
