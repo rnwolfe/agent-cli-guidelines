@@ -14,6 +14,7 @@ export default defineConfig({
 			title: 'Agent CLI Guidelines',
 			description:
 				'A living, versioned standard for command-line tools designed to be driven by LLM agents — invariants, patterns, antipatterns, and a conformance checklist.',
+			favicon: '/favicon.svg', // the indigo pulsed-dot mark (public/favicon.svg)
 			components: { Head: './src/components/Head.astro' },
 			// Default first-time visitors to the branded dark theme (the toggle still works).
 			head: [
