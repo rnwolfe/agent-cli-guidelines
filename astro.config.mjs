@@ -58,6 +58,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Conformance', slug: 'conformance' },
 						{ label: 'Get the badge', slug: 'badge' },
+						{ label: 'Adopters', slug: 'adopters' },
 						{ label: 'Evolution & governance', slug: 'evolution' },
 						{ label: 'Prior art & credits', slug: 'prior-art' },
 					],
