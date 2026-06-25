@@ -8,7 +8,7 @@ lastReviewed: 2026-06-23
 A tool may claim conformance to a **version** of these guidelines at a **level**. State it
 explicitly, e.g.:
 
-> Conforms to **Agent CLI Guidelines v0.3, Core**.
+> Conforms to **Agent CLI Guidelines v0.4, Core**.
 
 ## Levels
 
@@ -50,6 +50,8 @@ explicitly, e.g.:
 - [ ] Declare partial/narrowed results (a `scope`/`partial` field) — never silently limit output
 - [ ] Update awareness: `version --check` (structured, fail-silent); passive notice human-only;
       never auto-update or instruct self-update
+- [ ] Declare conformance in `schema` — a machine-readable `{spec, version, level}` block, not just
+      a README badge
 
 ## Grading it
 

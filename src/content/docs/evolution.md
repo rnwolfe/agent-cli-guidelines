@@ -9,7 +9,7 @@ These guidelines are **living**. Agent capabilities change fast, and CLI pattern
 should change with them. This page makes that explicit: how the document is versioned, the
 capability assumptions each part rests on, and the questions still open.
 
-**Status:** v0.3 (draft), 2026-06-24.
+**Status:** v0.4 (draft), 2026-06-25.
 
 ## Versioning
 
@@ -25,6 +25,10 @@ like default output bounds are **tunables**, not invariants — they can move in
 [capability assumptions](#capability-assumptions) behind them shift.
 
 ### Changelog
+- **v0.4.0 (2026-06-25)** — Add **machine-readable conformance** (SHOULD, Self-description): a tool
+  declares the conformed Guidelines `version` + `level` in its `schema` output, so an agent (and a
+  fleet audit) can verify the contract version it's driving — not just a human-readable README badge.
+  *Assumption:* agents introspect tools at runtime and benefit from a machine-readable contract claim.
 - **v0.3.0 (2026-06-24)** — Add **update awareness** (SHOULD, Self-description): `version --check`,
   human-only passive notice, and never auto-update / self-mutate (the safety half is a candidate to
   elevate to a MUST NOT). Add **declare partial / narrowed results** (SHOULD, Foundations): surface
@@ -52,6 +56,7 @@ changes, the dependent rules should be revisited — not silently kept.
 | [Backpressure on unofficial backends](/safety/#backpressure-on-unofficial--scraped-backends) | Agents call in unattended, high-frequency loops and won't self-moderate volume; an unofficial backend has no contract protecting it. | Runtimes natively rate-govern outbound calls, or official agent APIs replace the unofficial path. |
 | [Update awareness / no self-mutation](/self-description/#update-awareness--inform-never-self-mutate) | Agents treat a tool as a fixed, deterministic dependency within a run; self-mutation breaks reproducibility and is a supply-chain risk. | Durable — candidate to elevate the no-self-mutate half to a MUST NOT. |
 | [Declare partial / narrowed results](/foundations/#declare-partial-or-narrowed-results) | Agents assume results are complete unless explicitly told a scope was narrowed. | Durable. |
+| [Machine-readable conformance in `schema`](/self-description/#schema--the-machine-readable-surface) | Agents introspect a tool at runtime and benefit from reading the conformed contract version, not a human badge. | Durable while agents introspect tools at runtime. |
 | [Never require a TTY prompt](/invariants/#i5--never-require-interaction-never-take-secrets-on-argv) | Agents have no TTY and can't answer prompts. | Durable for headless agents; unlikely to change. |
 | [Read-only by default](/invariants/#i2--read-only-by-default-mutations-are-gated) | Agents act on inference, can be wrong, can be steered. | Durable — this is about consequence, not capability. |
 | [Structured output / errors / exit codes](/foundations/) | Machines parse fields and branch on codes. | Durable. |

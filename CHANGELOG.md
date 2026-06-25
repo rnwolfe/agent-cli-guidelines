@@ -3,6 +3,14 @@
 Versioning follows the scheme in [Evolution & governance](https://aclig.dev/evolution/):
 MAJOR = breaking normative change, MINOR = new non-breaking guidance, PATCH = clarifications.
 
+## v0.4.0 — 2026-06-25
+
+New non-breaking guidance.
+
+- **Machine-readable conformance** (SHOULD, Self-description): a tool declares the conformed
+  Agent CLI Guidelines `version` + `level` in its `schema` output (`{spec, version, level}`), so an
+  agent — and a fleet audit — can verify the contract version it's driving, not just a human badge.
+
 ## v0.3.0 — 2026-06-24
 
 New non-breaking guidance (reconciles two rules the factory profile carried ahead of the spec).

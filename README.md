@@ -24,7 +24,7 @@ can evolve as the models do.
 
 An AI-readable corpus is published at `/llms.txt` and `/llms-full.txt`.
 
-**Status:** v0.3 (draft). This is a living document — disagreement and proposals welcome via
+**Status:** v0.4 (draft). This is a living document — disagreement and proposals welcome via
 [issues and PRs](https://github.com/rnwolfe/agent-cli-guidelines/issues).
 
 ## Develop

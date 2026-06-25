@@ -57,8 +57,8 @@ body{background:#08080c;color:#ebebf2;font-family:'Int',sans-serif;position:rela
 const STD = 'Agent CLI Guidelines';
 // Per-page OG cards (1200x630). Versioned kickers are fine — regenerated + re-served each release.
 const pages = [
-  { slug: 'home', kicker: 'The standard · v0.3', title: 'Build CLIs your agent can actually drive.' },
-  { slug: 'default', kicker: 'The standard · v0.3', title: 'Agent CLI Guidelines' },
+  { slug: 'home', kicker: 'The standard · v0.4', title: 'Build CLIs your agent can actually drive.' },
+  { slug: 'default', kicker: 'The standard · v0.4', title: 'Agent CLI Guidelines' },
   { slug: 'philosophy', kicker: STD, title: 'Philosophy' },
   { slug: 'invariants', kicker: STD, title: 'Invariants — the core' },
   { slug: 'foundations', kicker: STD, title: 'Foundations: output, errors, exit codes' },

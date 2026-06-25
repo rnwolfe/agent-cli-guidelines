@@ -23,6 +23,7 @@ A tool **MUST** expose a `schema` output (JSON) describing itself. Include:
 {
   "tool": "examplectl",
   "version": "0.1.0",
+  "conformance": { "spec": "agent-cli-guidelines", "version": "0.4.0", "level": "Full" },
   "read_only": true,
   "commands": { "...": "the full tree" },
   "exit_codes": { "ok": 0, "usage": 2, "mutation_blocked": 12, "...": 0 },
@@ -33,6 +34,12 @@ A tool **MUST** expose a `schema` output (JSON) describing itself. Include:
 Generate this from the *same definitions* the parser uses, so it can never drift from the real
 surface. (Frameworks that model commands as data make this nearly free — e.g. Click's
 `to_info_dict`, kong's grammar, swift-argument-parser's `--experimental-dump-help`.)
+
+A tool **SHOULD** also declare a **`conformance`** claim in `schema` — the Agent CLI Guidelines
+`version` and `level` it targets — so an agent (and a fleet audit) can verify the contract version
+it is driving, rather than reading it off a human-only README badge.
+*Assumption:* agents introspect a tool at runtime and benefit from a machine-readable
+contract-version claim — durable while that holds (see [Evolution](/evolution/)).
 
 ## `agent` — an embedded usage guide
 
