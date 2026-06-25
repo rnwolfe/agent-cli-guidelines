@@ -8,7 +8,7 @@ lastReviewed: 2026-06-23
 A tool may claim conformance to a **version** of these guidelines at a **level**. State it
 explicitly, e.g.:
 
-> Conforms to **Agent CLI Guidelines v0.2, Core**.
+> Conforms to **Agent CLI Guidelines v0.3, Core**.
 
 ## Levels
 
@@ -47,6 +47,9 @@ explicitly, e.g.:
       cross-process throttle, circuit-break on block) — protect the provider's infra and the user's access
 - [ ] Unofficial/ToS-encumbered backend: state the legitimacy boundary (risk + intended scale) in
       README/`agent`; no evasion of provider controls
+- [ ] Declare partial/narrowed results (a `scope`/`partial` field) — never silently limit output
+- [ ] Update awareness: `version --check` (structured, fail-silent); passive notice human-only;
+      never auto-update or instruct self-update
 
 ## Grading it
 

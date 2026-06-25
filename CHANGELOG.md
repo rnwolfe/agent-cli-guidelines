@@ -3,6 +3,15 @@
 Versioning follows the scheme in [Evolution & governance](https://aclig.dev/evolution/):
 MAJOR = breaking normative change, MINOR = new non-breaking guidance, PATCH = clarifications.
 
+## v0.3.0 — 2026-06-24
+
+New non-breaking guidance (reconciles two rules the factory profile carried ahead of the spec).
+
+- **Update awareness** (SHOULD, Self-description): `version --check` (structured, fail-silent),
+  human-only passive notice, and never auto-update / instruct self-update.
+- **Declare partial / narrowed results** (SHOULD, Foundations): surface scope/partial in the
+  envelope rather than silently limiting output.
+
 ## v0.2.0 — 2026-06-24
 
 New non-breaking guidance for tools built on unofficial / scraped backends.

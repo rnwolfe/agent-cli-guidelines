@@ -43,6 +43,17 @@ Every failure returns a structured object, to stderr, as JSON when JSON is reque
 - **Echo the offending input** so the agent sees what it sent.
 - Opaque stack traces are a last resort, never the primary surface.
 
+## Declare partial or narrowed results
+
+When a tool returns *less* than the caller might assume — results limited by **auth scope**, **gated
+access**, an own-only-vs-public corpus, a **degraded backend**, or a default filter — it **SHOULD**
+say so in the output (e.g. a `scope` or `partial` field in the JSON envelope), never silently. An
+agent treats results as complete unless told otherwise; silent narrowing is a correctness bug for an
+autonomous caller acting on them.
+
+*Rationale:* the agent can't see what was filtered out — only the tool knows. *Assumption:* agents
+assume completeness absent an explicit signal — durable.
+
 ## Exit codes
 
 Exit codes are the agent's control flow. Make them distinct, documented, and stable; surface the

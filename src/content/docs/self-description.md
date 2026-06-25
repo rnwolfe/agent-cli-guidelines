@@ -49,6 +49,26 @@ When an agent meets an unfamiliar CLI, the first thing it runs is `--help`. So:
 - Keep it complete and parseable; consider a terse agent-help mode (e.g. `TOOL_HELP=agent`) that
   prints a compact, machine-skimmable contract.
 
+## Update awareness — inform, never self-mutate
+
+A tool an agent invokes in a loop must not surprise it with version drift or rewrite itself
+mid-task:
+
+- It **SHOULD** offer a pull-based **`version --check`** — structured
+  `{current, latest, updateAvailable, upgrade}`, a short network timeout, fail-silent — so an agent
+  can ask "am I current?" without parsing prose.
+- A passive "update available" notice **SHOULD** be **human-only**: at most a one-line hint to
+  **stderr**, only on an interactive TTY + human format, cached so it costs nothing in a hot loop,
+  and **silent for agents** (`--json` / non-TTY / `--no-input`).
+- A tool **SHOULD NOT** auto-update, and **SHOULD NOT** instruct the agent to update it — a binary
+  that rewrites itself mid-task breaks reproducibility and is a supply-chain/exec hazard. Surface
+  the upgrade *command* to the human; let them (or their package manager) decide.
+
+*Rationale:* the agent treats the tool as a fixed, deterministic dependency within a run; drift or
+self-mutation corrupts that. *Assumption:* agents invoke tools repeatedly in unattended runs and
+rely on stable behavior — durable; the "never self-mutate" half is a candidate to elevate to a
+MUST NOT (see [Evolution](/evolution/)).
+
 ## One source of truth
 
 `--help`, the embedded `agent` guide, and `schema` **SHOULD** be generated from a single

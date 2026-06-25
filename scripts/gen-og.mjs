@@ -53,8 +53,8 @@ body{background:#08080c;color:#ebebf2;font-family:'Int',sans-serif;position:rela
 
 const STD = 'Agent CLI Guidelines';
 const pages = [
-  { slug: 'home', kicker: 'The standard · v0.2', title: 'Build CLIs your agent can actually drive.' },
-  { slug: 'default', kicker: 'The standard · v0.2', title: 'Agent CLI Guidelines' },
+  { slug: 'home', kicker: 'The standard · v0.3', title: 'Build CLIs your agent can actually drive.' },
+  { slug: 'default', kicker: 'The standard · v0.3', title: 'Agent CLI Guidelines' },
   { slug: 'philosophy', kicker: STD, title: 'Philosophy' },
   { slug: 'invariants', kicker: STD, title: 'Invariants — the core' },
   { slug: 'foundations', kicker: STD, title: 'Foundations: output, errors, exit codes' },
