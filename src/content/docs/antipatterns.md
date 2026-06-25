@@ -65,3 +65,11 @@ filter the results itself. **Fix:** few task-shaped commands that return the hig
 ## Safety story that depends on the model behaving
 Relying on a prompt ("the agent will ask first") instead of a structural guarantee. Prompts are
 not security. **Fix:** make the safe behavior structural — the default, enforced by the binary.
+
+## Evasion as a feature
+Building in techniques whose purpose is to **defeat a provider's controls** — User-Agent spoofing to
+look human, CAPTCHA-solving, residential-proxy rotation — so the tool can keep scraping after it's
+been blocked. This is an abuse arms-race, not a property of a good CLI, and it contradicts respecting
+the backend. **Fix:** identify the client honestly, reduce request *volume*
+([backpressure](/safety/#backpressure-on-unofficial--scraped-backends)), back off when blocked, and
+treat a persistent block as a stop signal — not something to engineer around.

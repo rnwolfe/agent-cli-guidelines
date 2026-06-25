@@ -56,6 +56,15 @@ Request the **narrowest** scope/role that does the job, and prefer fine-grained,
 credentials. For read-only tools, document the read-only role the target offers (and any gotchas,
 e.g. a stock role that can't see certain resources).
 
+## Using unofficial backends responsibly
+
+If the tool rides an **unofficial or ToS-encumbered backend**, it **SHOULD state its legitimacy
+boundary plainly** — the breakage/ToS risk and the intended **personal / legitimate scale** — in the
+README and the embedded `agent` output, so neither a human nor an agent unknowingly drives it at
+prohibited bulk or commercial scale. Pair that disclosure with
+[backpressure](/safety/#backpressure-on-unofficial--scraped-backends) (respect the infrastructure),
+never with [evasion](/antipatterns/#evasion-as-a-feature) (defeating its controls).
+
 *Capability assumption:* the *mechanics* here are durable. The open hard problem — **per-user
 identity, audit, and revocation for a tool an autonomous agent invokes** — is unsolved for CLIs in
 multi-user settings and is tracked in [Evolution](/evolution/#open-questions).

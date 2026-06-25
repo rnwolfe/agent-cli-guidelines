@@ -9,7 +9,7 @@ These guidelines are **living**. Agent capabilities change fast, and CLI pattern
 should change with them. This page makes that explicit: how the document is versioned, the
 capability assumptions each part rests on, and the questions still open.
 
-**Status:** v0.1 (draft), 2026-06-23.
+**Status:** v0.2 (draft), 2026-06-24.
 
 ## Versioning
 
@@ -25,6 +25,12 @@ like default output bounds are **tunables**, not invariants — they can move in
 [capability assumptions](#capability-assumptions) behind them shift.
 
 ### Changelog
+- **v0.2.0 (2026-06-24)** — Add **backpressure on unofficial / scraped backends** (SHOULD, Safety):
+  self-throttle, persist throttle state across processes, circuit-break on a block. Add **state the
+  legitimacy boundary** (SHOULD, Auth) for unofficial/ToS-encumbered backends. Add the **Evasion as a
+  feature** antipattern (UA-spoofing / CAPTCHA-solving / proxy rotation to defeat provider controls).
+  *Assumption:* agents call unofficial backends in unattended, high-frequency loops and won't
+  self-moderate request volume.
 - **v0.1.0 (2026-06-23)** — Initial draft: 10 invariants; patterns for foundations, safety,
   self-description, token economy, and auth; the antipattern catalogue; two conformance levels.
 
@@ -38,6 +44,7 @@ changes, the dependent rules should be revisited — not silently kept.
 | [Bounded output / token caps](/economy/) | Context is scarce; recall degrades as it fills ("context rot"). | Windows grow *and* recall stays flat → raise default bounds (keep the principle). |
 | [`schema` + `agent` self-description](/self-description/) | Models learn a tool at runtime, not from training; they benefit from a machine-readable contract. | Models reliably infer the full surface from `--help` alone → demote toward SHOULD. |
 | [Prompt-injection fencing](/safety/#prompt-injection-fencing) | Agents may follow instructions found in fetched content. | Models become reliably immune to injected instructions → relax fencing. |
+| [Backpressure on unofficial backends](/safety/#backpressure-on-unofficial--scraped-backends) | Agents call in unattended, high-frequency loops and won't self-moderate volume; an unofficial backend has no contract protecting it. | Runtimes natively rate-govern outbound calls, or official agent APIs replace the unofficial path. |
 | [Never require a TTY prompt](/invariants/#i5--never-require-interaction-never-take-secrets-on-argv) | Agents have no TTY and can't answer prompts. | Durable for headless agents; unlikely to change. |
 | [Read-only by default](/invariants/#i2--read-only-by-default-mutations-are-gated) | Agents act on inference, can be wrong, can be steered. | Durable — this is about consequence, not capability. |
 | [Structured output / errors / exit codes](/foundations/) | Machines parse fields and branch on codes. | Durable. |

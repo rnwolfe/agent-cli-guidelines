@@ -8,7 +8,7 @@ lastReviewed: 2026-06-23
 A tool may claim conformance to a **version** of these guidelines at a **level**. State it
 explicitly, e.g.:
 
-> Conforms to **Agent CLI Guidelines v0.1, Core**.
+> Conforms to **Agent CLI Guidelines v0.2, Core**.
 
 ## Levels
 
@@ -43,6 +43,10 @@ explicitly, e.g.:
 - [ ] Self-description (`--help`, `agent`, `schema`) generated from one source
 - [ ] Idempotent/declarative verbs; per-target isolation + partial-success code on fan-out
 - [ ] Prompt-injection fencing **on by default** in agent mode
+- [ ] Unofficial/scraped backend: self-throttle (conservative rate, backoff, persistent
+      cross-process throttle, circuit-break on block) — protect the provider's infra and the user's access
+- [ ] Unofficial/ToS-encumbered backend: state the legitimacy boundary (risk + intended scale) in
+      README/`agent`; no evasion of provider controls
 
 ## Grading it
 

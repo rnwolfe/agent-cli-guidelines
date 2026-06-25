@@ -55,6 +55,30 @@ When a tool acts across many targets (a fleet), **isolate per-target failures** 
 host must not fail the others — and return a **partial-success exit code** when any target failed.
 Default targeting must never silently fan a mutation out to *everything*.
 
+## Backpressure on unofficial / scraped backends
+
+When the backend is an **unofficial API or a scraped site** (no official, rate-governed contract),
+the tool is a guest on someone else's infrastructure — and an agent will call it in tight,
+unattended loops, far faster and more repetitively than a human. The tool **SHOULD** restrain the
+load it imposes, to protect both the provider's infrastructure and the user's continued access:
+
+- **Conservative defaults** — low default concurrency and request rate; honor `Retry-After` and
+  back off exponentially on throttling (the `rate_limited` exit code, see [Foundations](/foundations/)).
+- **Persist throttle state across processes.** An agent spawns a fresh process per call, so an
+  in-memory timer is a no-op — keep the last-request time, a rolling window, and a circuit-breaker
+  `blocked_until` in a state dir (`$XDG_STATE_HOME/<tool>/`). See [Token economy](/economy/).
+- **Trip a circuit-breaker on a block/CAPTCHA signal** instead of retrying into it, and **fail fast
+  by default** (a hung CLI deadlocks an agent loop) — make waiting opt-in (`--wait`).
+
+Reducing *volume* is the goal — **not disguising it**. Defeating a provider's controls (UA-spoofing,
+CAPTCHA-solving, proxy rotation) is an [antipattern](/antipatterns/#evasion-as-a-feature), not
+backpressure.
+
+*Rationale:* an agent in a loop will hammer an unofficial backend into blocking the user unless the
+tool restrains itself. *Assumption:* agents drive tools in high-frequency, unattended loops and
+won't self-moderate request volume; revisit if agent runtimes natively rate-govern outbound calls,
+or official agent APIs make the unofficial path unnecessary — see [Evolution](/evolution/).
+
 ## Prompt-injection fencing
 
 Output that originates from an external, attacker-influenceable source — message bodies, interface

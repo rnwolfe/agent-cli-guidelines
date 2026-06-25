@@ -52,14 +52,14 @@ A generated equivalent, if you'd rather not hotlink the SVG:
 Plain text for a README line, release notes, or a tool's `--help`/`agent` output:
 
 ```text
-Follows the Agent CLI Guidelines (v0.1, Full) — read-only by default, structured,
+Follows the Agent CLI Guidelines (v0.2, Full) — read-only by default, structured,
 self-describing, stable exit codes. https://aclig.dev
 ```
 
 ## Cite the version
 
-The standard is versioned (currently **v0.1**) — see [Evolution](/evolution/). When you claim
-conformance, name the version and level you targeted (e.g. "Agent CLI Guidelines v0.1, Core") so
+The standard is versioned (currently **v0.2**) — see [Evolution](/evolution/). When you claim
+conformance, name the version and level you targeted (e.g. "Agent CLI Guidelines v0.2, Core") so
 the claim stays meaningful as the standard evolves.
 
 ## Worked examples
