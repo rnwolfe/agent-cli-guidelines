@@ -12,6 +12,20 @@ just trust a README badge.
 Built one? If it [conforms](/conformance/) and wears the [badge](/badge/), open a PR or an issue to
 get it listed.
 
+## Install them as agent skills
+
+Companion skills bootstrap the binary if it's missing and then defer to each tool's `agent` /
+`schema` output — so an agent can discover and drive any of these with no setup:
+
+```text
+# Claude Code
+/plugin marketplace add rnwolfe/agent-cli-skills
+/plugin install agent-cli-skills@agent-cli-skills
+
+# or, generically
+npx skills add rnwolfe/agent-cli-skills
+```
+
 ## Built to the standard
 
 ### [rivr](https://github.com/rnwolfe/rivr) — Amazon shopping
